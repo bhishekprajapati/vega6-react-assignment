@@ -11,6 +11,7 @@ import {
   Input,
   Skeleton,
 } from "@chakra-ui/react";
+import Link from "next/link";
 import { createContext, useContext, useState } from "react";
 
 type TQueryContext =
@@ -58,7 +59,13 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ data }) => (
       />
     </Card.Body>
     <Card.Footer>
-      <Button variant="subtle" w="full">
+      <Button
+        as={Link}
+        // @ts-expect-error
+        href={`/editor/${data.id}`}
+        variant="subtle"
+        w="full"
+      >
         Add Caption
       </Button>
     </Card.Footer>
