@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearch } from "@/hooks/unsplash";
+import { useSearch, UseSearchResponseData } from "@/hooks/unsplash";
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   GridItem,
   Image,
   Input,
+  Skeleton,
 } from "@chakra-ui/react";
 import { createContext, useContext, useState } from "react";
 
@@ -41,6 +42,55 @@ const SearchRoot: React.FC<SearchRootProps> = ({ children }) => {
   );
 };
 
+type PhotoCardProps = {
+  data: ArrayType<UseSearchResponseData["results"]>;
+};
+
+const PhotoCard: React.FC<PhotoCardProps> = ({ data }) => (
+  <Card.Root>
+    <Card.Body>
+      <Image
+        aspectRatio={1}
+        objectFit="cover"
+        objectPosition="center"
+        rounded={4}
+        src={data.urls.small}
+      />
+    </Card.Body>
+    <Card.Footer>
+      <Button variant="subtle" w="full">
+        Add Caption
+      </Button>
+    </Card.Footer>
+  </Card.Root>
+);
+
+const PhotoCardSkeleton = () => (
+  <Card.Root>
+    <Card.Body>
+      <Skeleton aspectRatio={1} rounded={4} />
+    </Card.Body>
+    <Card.Footer>
+      <Skeleton w="full" h={8} rounded={4} />
+    </Card.Footer>
+  </Card.Root>
+);
+
+const ContainerItem = ({ children }: { children: React.ReactNode }) => (
+  <GridItem>{children}</GridItem>
+);
+
+const Container = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Grid
+      templateColumns={["auto", "repeat(2, 1fr)", "repeat(4, 1fr)"]}
+      gap={[8]}
+    >
+      {children}
+    </Grid>
+  );
+};
+
 const SearchResults = () => {
   const { query } = useQuery();
   const isEmptyQuery = !query;
@@ -58,31 +108,13 @@ const SearchResults = () => {
 
   if (search.data) {
     return (
-      <Grid
-        templateColumns={["auto", "repeat(2, 1fr)", "repeat(4, 1fr)"]}
-        gap={[8]}
-      >
+      <Container>
         {search.data.results.map((photo) => (
-          <GridItem key={photo.id}>
-            <Card.Root>
-              <Card.Body>
-                <Image
-                  aspectRatio={1}
-                  objectFit="cover"
-                  objectPosition="center"
-                  rounded={4}
-                  src={photo.urls.small}
-                />
-              </Card.Body>
-              <Card.Footer>
-                <Button variant="subtle" w="full">
-                  Add Caption
-                </Button>
-              </Card.Footer>
-            </Card.Root>
-          </GridItem>
+          <ContainerItem key={photo.id}>
+            <PhotoCard data={photo} />
+          </ContainerItem>
         ))}
-      </Grid>
+      </Container>
     );
   }
 
@@ -97,10 +129,15 @@ const SearchResults = () => {
     return <></>;
   }
 
-  /**
-   * TODO: add loading spinner
-   */
-  return <>data loading...</>;
+  return (
+    <Container>
+      {new Array(10).fill(0).map((_, i) => (
+        <ContainerItem key={i}>
+          <PhotoCardSkeleton />
+        </ContainerItem>
+      ))}
+    </Container>
+  );
 };
 
 const SearchBar = () => {
