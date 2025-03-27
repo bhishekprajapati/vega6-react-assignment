@@ -119,7 +119,13 @@ const SearchResults = () => {
   }
 
   if (search.error) {
-    return <Box>{search.error.message}</Box>;
+    return (
+      <Card.Root>
+        <Card.Body textAlign="center" color="red">
+          {search.error.message}
+        </Card.Body>
+      </Card.Root>
+    );
   }
 
   /**
@@ -148,6 +154,7 @@ const SearchBar = () => {
 
   return (
     <Input
+      autoFocus
       placeholder="search for images..."
       onChange={(e) => setQuery(e.target.value.trim())}
     />
