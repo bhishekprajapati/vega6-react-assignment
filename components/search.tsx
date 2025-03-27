@@ -55,7 +55,7 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ data }) => (
         objectFit="cover"
         objectPosition="center"
         rounded={4}
-        src={data.urls.small}
+        src={data.urls.thumb}
       />
     </Card.Body>
     <Card.Footer>

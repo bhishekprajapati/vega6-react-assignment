@@ -1,4 +1,4 @@
-import { Box, Card, CardBody, CardRoot } from "@chakra-ui/react";
+import { CardBody, CardRoot } from "@chakra-ui/react";
 
 import Editor from "@/components/editor";
 import unsplash from "@/lib/unsplash";
