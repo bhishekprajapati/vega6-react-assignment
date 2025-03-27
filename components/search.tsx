@@ -1,7 +1,15 @@
 "use client";
 
 import { useSearch } from "@/hooks/unsplash";
-import { Box, Card, Image, Input } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Card,
+  Grid,
+  GridItem,
+  Image,
+  Input,
+} from "@chakra-ui/react";
 import { createContext, useContext, useState } from "react";
 
 type TQueryContext =
@@ -50,13 +58,31 @@ const SearchResults = () => {
 
   if (search.data) {
     return (
-      <Box>
+      <Grid
+        templateColumns={["auto", "repeat(2, 1fr)", "repeat(4, 1fr)"]}
+        gap={[8]}
+      >
         {search.data.results.map((photo) => (
-          <Card.Root key={photo.id}>
-            <Image src={photo.urls.small} />
-          </Card.Root>
+          <GridItem key={photo.id}>
+            <Card.Root>
+              <Card.Body>
+                <Image
+                  aspectRatio={1}
+                  objectFit="cover"
+                  objectPosition="center"
+                  rounded={4}
+                  src={photo.urls.small}
+                />
+              </Card.Body>
+              <Card.Footer>
+                <Button variant="subtle" w="full">
+                  Add Caption
+                </Button>
+              </Card.Footer>
+            </Card.Root>
+          </GridItem>
         ))}
-      </Box>
+      </Grid>
     );
   }
 
@@ -84,19 +110,19 @@ const SearchBar = () => {
    */
 
   return (
-    <Box>
-      <Input
-        placeholder="search for images..."
-        onChange={(e) => setQuery(e.target.value.trim())}
-      />
-    </Box>
+    <Input
+      placeholder="search for images..."
+      onChange={(e) => setQuery(e.target.value.trim())}
+    />
   );
 };
 
 const Search = () => (
-  <Box maxWidth={[null, null, "2/3"]} mx="auto">
+  <Box>
     <SearchRoot>
-      <SearchBar />
+      <Box maxWidth={[null, null, "2/3"]} mx="auto" mb={[8]}>
+        <SearchBar />
+      </Box>
       <SearchResults />
     </SearchRoot>
   </Box>
