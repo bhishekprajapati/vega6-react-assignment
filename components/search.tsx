@@ -11,6 +11,7 @@ import {
   Input,
   Skeleton,
 } from "@chakra-ui/react";
+import { debounce } from "lodash";
 import Link from "next/link";
 import { createContext, useContext, useState } from "react";
 
@@ -155,15 +156,15 @@ const SearchResults = () => {
 
 const SearchBar = () => {
   const { setQuery } = useQuery();
-  /**
-   * TODO: debounce the change events
-   */
+  const debounced = debounce(setQuery, 250, {
+    trailing: true,
+  });
 
   return (
     <Input
       autoFocus
       placeholder="search for images..."
-      onChange={(e) => setQuery(e.target.value.trim())}
+      onChange={(e) => debounced(e.target.value.trim())}
     />
   );
 };
