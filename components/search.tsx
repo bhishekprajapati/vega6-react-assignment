@@ -56,7 +56,7 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ data }) => (
         objectFit="cover"
         objectPosition="center"
         rounded={4}
-        src={data.urls.small}
+        src={data.urls.regular}
         alt={data.alt_description ?? ""}
         loading="lazy"
         decoding="async"
