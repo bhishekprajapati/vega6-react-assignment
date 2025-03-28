@@ -12,11 +12,14 @@ import {
   useAccordionItemContext,
 } from "@chakra-ui/react";
 import JsonView from "@uiw/react-json-view";
+import { githubDarkTheme } from "@uiw/react-json-view/githubDark";
+import { githubLightTheme } from "@uiw/react-json-view/githubLight";
 import * as f from "fabric";
 import { Circle, RectangleHorizontal, Triangle, Type } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
+import { ColorModeButton, useColorMode } from "./ui/color-mode";
 
 declare module "fabric" {
   interface FabricObject {
@@ -122,6 +125,7 @@ const EditorTools: React.FC<EditorToolsProps> = ({ canvas, image }) => {
           <Icon size={16} />
         </Button>
       ))}
+      <ColorModeButton />
     </Flex>
   );
 };
@@ -153,12 +157,20 @@ type EditorControlsProps = {
 };
 
 const Debugger = ({ canvas }: { canvas: f.Canvas }) => {
+  const mode = useColorMode();
   const json = useCanvasState({
     canvas,
     handler: (canvas) => canvas.toJSON() as Record<string, unknown>,
   });
+
   console.log(json);
-  return <JsonView value={json ?? {}} style={{ padding: ".5rem" }} />;
+
+  return (
+    <JsonView
+      value={json ?? {}}
+      style={mode.colorMode === "light" ? githubLightTheme : githubDarkTheme}
+    />
+  );
 };
 
 const Downloader = ({}: { canvas: f.Canvas }) => {
