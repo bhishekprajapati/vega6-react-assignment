@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Provider } from "@/components/ui/provider";
 import SWRProvider from "./swr-provider";
+import { Box } from "@chakra-ui/react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body>
         <Provider>
-          <SWRProvider>{children}</SWRProvider>
+          <SWRProvider>
+            <Box overflow="hidden">{children}</Box>
+          </SWRProvider>
         </Provider>
       </body>
     </html>

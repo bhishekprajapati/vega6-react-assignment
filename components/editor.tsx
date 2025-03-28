@@ -1,9 +1,19 @@
 "use client";
 
+import { useCanvasState } from "@/hooks/canvas";
+import {
+  Accordion,
+  Box,
+  Button,
+  Card,
+  Flex,
+  Grid,
+  GridItem,
+  Tooltip,
+  useAccordionItemContext,
+} from "@chakra-ui/react";
+import JsonView from "@uiw/react-json-view";
 import * as f from "fabric";
-import { Box, Button, Card, Flex, Grid, GridItem } from "@chakra-ui/react";
-import type { Full } from "unsplash-js/dist/methods/photos/types";
-import { useEffect, useRef, useState } from "react";
 import {
   Circle,
   RectangleHorizontal,
@@ -11,6 +21,21 @@ import {
   Triangle,
   Type,
 } from "lucide-react";
+import { nanoid } from "nanoid";
+import { useEffect, useRef, useState } from "react";
+import type { Full } from "unsplash-js/dist/methods/photos/types";
+
+declare module "fabric" {
+  interface FabricObject {
+    id: string;
+  }
+
+  interface SerializedObjectProps {
+    id: string;
+  }
+}
+
+f.FabricObject.customProperties = ["id"];
 
 type EditorToolsProps = {
   canvas: f.Canvas;
@@ -21,44 +46,138 @@ const EditorTools: React.FC<EditorToolsProps> = ({ canvas }) => {
     {
       name: "text",
       Icon: Type,
+      onClick: () => {
+        const text = new f.IText("Text", {
+          id: nanoid(),
+          fill: "#909090",
+        });
+        canvas.add(text);
+        canvas.setActiveObject(text);
+        canvas.renderAll();
+      },
     },
     {
       name: "triangle",
       Icon: Triangle,
+      onClick: () => {
+        const triangle = new f.Triangle({
+          id: nanoid(),
+          fill: "#808080",
+        });
+        canvas.add(triangle);
+        canvas.setActiveObject(triangle);
+        canvas.renderAll();
+      },
     },
     {
       name: "rect",
       Icon: RectangleHorizontal,
+      onClick: () => {
+        const rect = new f.Rect({
+          id: nanoid(),
+          backgroundColor: "#707070",
+        });
+        canvas.add(rect);
+        canvas.setActiveObject(rect);
+        canvas.renderAll();
+      },
     },
     {
       name: "circle",
       Icon: Circle,
+      onClick: () => {
+        const circle = new f.Circle({
+          id: nanoid(),
+          fill: "#606060",
+          radius: 100,
+        });
+        canvas.add(circle);
+        canvas.setActiveObject(circle);
+        canvas.renderAll();
+      },
     },
-    {
-      name: "polygon",
-      Icon: Star,
-    },
+    // {
+    //   name: "polygon",
+    //   Icon: Star,
+    //   onClick: () => {
+    //             const polygon = new f.Polygon();
+    //             canvas.add(polygon);
+    //             canvas.setActiveObject(polygon);
+    //             canvas.renderAll();
+    //   },
+    // },
   ] as const;
 
   return (
     <Flex direction="column" alignItems="center" p="2" gap={2}>
-      {bttns.map(({ name, Icon }) => (
-        <Box key={name}>
-          <Button variant="subtle">
-            <Icon size={16} />
-          </Button>
-        </Box>
+      {bttns.map(({ name, Icon, onClick }) => (
+        <Button key={name} variant="subtle" onClick={onClick}>
+          <Icon size={16} />
+        </Button>
       ))}
     </Flex>
   );
 };
 
-type EditorLayersProps = {
+type AccordionItemProps = {
+  children: React.ReactNode;
+  value: string;
+  name: string;
+};
+
+const AccordionItem = (props: AccordionItemProps) => {
+  const { children, value, name } = props;
+
+  return (
+    <Accordion.Item value={value}>
+      <Accordion.ItemTrigger p={4} justifyContent="space-between">
+        <Box>{name}</Box>
+        <Accordion.ItemIndicator />
+      </Accordion.ItemTrigger>
+      <Accordion.ItemContent>
+        <Accordion.ItemBody>{children}</Accordion.ItemBody>
+      </Accordion.ItemContent>
+    </Accordion.Item>
+  );
+};
+
+type EditorControlsProps = {
   canvas: f.Canvas;
 };
 
-const EditorLayers: React.FC<EditorLayersProps> = ({ canvas }) => {
-  return "layers";
+const Debugger = ({ canvas }: { canvas: f.Canvas }) => {
+  const json = useCanvasState({
+    canvas,
+    handler: (canvas) => canvas.toJSON() as Record<any, any>,
+  });
+  console.log(json);
+  return <JsonView value={json ?? {}} style={{ padding: ".5rem" }} />;
+};
+
+const Downloader = ({ canvas }: { canvas: f.Canvas }) => {
+  return "";
+};
+
+const WhenExpanded = ({ children }: { children: React.ReactNode }) => {
+  const { expanded } = useAccordionItemContext();
+  return expanded ? children : <></>;
+};
+
+const EditorControls: React.FC<EditorControlsProps> = ({ canvas }) => {
+  return (
+    <Accordion.Root collapsible defaultValue={["b"]}>
+      <AccordionItem name="Debug" value="Debug">
+        <WhenExpanded>
+          <Debugger canvas={canvas} />
+        </WhenExpanded>
+      </AccordionItem>
+      <AccordionItem name="Download" value="Download">
+        <WhenExpanded>
+          <Downloader canvas={canvas} />
+        </WhenExpanded>
+      </AccordionItem>
+    </Accordion.Root>
+  );
 };
 
 type EditorProps = {
@@ -109,7 +228,7 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
 
   return (
     <Box h="100dvh">
-      <Grid h="full" templateColumns={["auto", null, ".5fr 9.5fr 2fr"]}>
+      <Grid h="full" templateColumns={["auto", null, ".5fr 7.5fr 4fr"]}>
         <GridItem h="full">
           <Card.Root h="full">
             {canvas && <EditorTools canvas={canvas} />}
@@ -122,7 +241,7 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
         </GridItem>
         <GridItem h="full">
           <Card.Root h="full">
-            {canvas && <EditorLayers canvas={canvas} />}
+            {canvas && <EditorControls canvas={canvas} />}
           </Card.Root>
         </GridItem>
       </Grid>
