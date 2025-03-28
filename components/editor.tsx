@@ -32,9 +32,10 @@ f.FabricObject.customProperties = ["id"];
 
 type EditorToolsProps = {
   canvas: f.Canvas;
+  image: f.FabricImage;
 };
 
-const EditorTools: React.FC<EditorToolsProps> = ({ canvas }) => {
+const EditorTools: React.FC<EditorToolsProps> = ({ canvas, image }) => {
   const bttns = [
     {
       name: "text",
@@ -43,6 +44,8 @@ const EditorTools: React.FC<EditorToolsProps> = ({ canvas }) => {
         const text = new f.IText("Text", {
           id: nanoid(),
           fill: "#909090",
+          top: image.top,
+          left: image.left,
         });
         canvas.add(text);
         canvas.setActiveObject(text);
@@ -56,6 +59,8 @@ const EditorTools: React.FC<EditorToolsProps> = ({ canvas }) => {
         const triangle = new f.Triangle({
           id: nanoid(),
           fill: "#808080",
+          top: image.top,
+          left: image.left,
         });
         canvas.add(triangle);
         canvas.setActiveObject(triangle);
@@ -69,6 +74,8 @@ const EditorTools: React.FC<EditorToolsProps> = ({ canvas }) => {
         const rect = new f.Rect({
           id: nanoid(),
           backgroundColor: "#707070",
+          top: image.top,
+          left: image.left,
         });
         canvas.add(rect);
         canvas.setActiveObject(rect);
@@ -83,23 +90,30 @@ const EditorTools: React.FC<EditorToolsProps> = ({ canvas }) => {
           id: nanoid(),
           fill: "#606060",
           radius: 100,
+          top: image.top,
+          left: image.left,
         });
         canvas.add(circle);
         canvas.setActiveObject(circle);
         canvas.renderAll();
       },
     },
-    // {
-    //   name: "polygon",
-    //   Icon: Star,
-    //   onClick: () => {
-    //             const polygon = new f.Polygon();
-    //             canvas.add(polygon);
-    //             canvas.setActiveObject(polygon);
-    //             canvas.renderAll();
-    //   },
-    // },
   ] as const;
+
+  useEffect(
+    () =>
+      canvas.on("object:added", () => {
+        const objects = canvas.getObjects();
+        // Bring text objects to the top
+        objects.forEach((obj) => {
+          if (obj instanceof f.IText) {
+            canvas.bringObjectToFront(obj);
+          }
+        });
+        canvas.renderAll();
+      }),
+    [canvas]
+  );
 
   return (
     <Flex direction="column" alignItems="center" p="2" gap={2}>
@@ -180,6 +194,7 @@ type EditorProps = {
 const Editor: React.FC<EditorProps> = ({ data }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvas, setCanvas] = useState<f.Canvas | null>(null);
+  const [image, setImage] = useState<f.FabricImage>();
 
   useEffect(function init() {
     if (!canvasRef.current) return;
@@ -213,6 +228,7 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
       f.FabricImage.fromURL(data.urls.small).then((img) => {
         canvas.add(img);
         canvas.renderAll();
+        setImage(img);
       });
       // TODO: handle loading error
     },
@@ -224,7 +240,7 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
       <Grid h="full" templateColumns={["auto", null, ".5fr 7.5fr 4fr"]}>
         <GridItem h="full">
           <Card.Root h="full">
-            {canvas && <EditorTools canvas={canvas} />}
+            {canvas && image && <EditorTools canvas={canvas} image={image} />}
           </Card.Root>
         </GridItem>
         <GridItem h="full">
