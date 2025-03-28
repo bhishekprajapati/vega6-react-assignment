@@ -1,3 +1,7 @@
+# Demo
+
+[Demo Video](https://raw.githubusercontent.com/bhishekprajapati/vega6-react-assignment/main/public/demo.mp4)
+
 ## Run Locally
 
 Create a `.env` file in project root. For reference, checkout `.env.example` file and fill out the all variables in .env.
