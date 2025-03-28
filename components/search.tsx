@@ -2,6 +2,7 @@
 
 import { useSearch, UseSearchResponseData } from "@/hooks/unsplash";
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -69,9 +70,18 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ data }) => (
         href={`/editor/${data.id}`}
         variant="subtle"
         w="full"
+        display={["none", null, null, "flex"]}
       >
         Add Caption
       </Button>
+      <Box w="full" display={["block", null, null, "none"]}>
+        <Alert.Root status="warning">
+          <Alert.Indicator />
+          <Alert.Content>
+            <Alert.Title>Open on desktop to add caption/edit</Alert.Title>
+          </Alert.Content>
+        </Alert.Root>
+      </Box>
     </Card.Footer>
   </Card.Root>
 );
