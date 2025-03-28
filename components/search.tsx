@@ -128,6 +128,14 @@ const SearchResults = () => {
   });
 
   if (search.data) {
+    if (!search.data.results.length) {
+      return (
+        <Card.Root textAlign="center" p={16} color="yellow">
+          0 images found
+        </Card.Root>
+      );
+    }
+
     return (
       <Container>
         {search.data.results.map((photo) => (
