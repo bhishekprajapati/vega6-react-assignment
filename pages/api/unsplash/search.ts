@@ -27,6 +27,7 @@ const handler = async (
         "either `query` param is missing or `resource` param is missing",
       ],
       source: "api",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       originalResponse: {} as any,
     });
     return;
@@ -47,6 +48,7 @@ const handler = async (
     status: 501,
     source: "api",
     errors: ["invalid resource name"],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     originalResponse: {} as any,
   });
 };

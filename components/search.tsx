@@ -57,12 +57,13 @@ const PhotoCard: React.FC<PhotoCardProps> = ({ data }) => (
         objectPosition="center"
         rounded={4}
         src={data.urls.thumb}
+        alt={data.alt_description ?? ""}
       />
     </Card.Body>
     <Card.Footer>
       <Button
         as={Link}
-        // @ts-expect-error
+        // @ts-expect-error dynamic route
         href={`/editor/${data.id}`}
         variant="subtle"
         w="full"

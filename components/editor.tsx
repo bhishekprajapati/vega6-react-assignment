@@ -9,18 +9,11 @@ import {
   Flex,
   Grid,
   GridItem,
-  Tooltip,
   useAccordionItemContext,
 } from "@chakra-ui/react";
 import JsonView from "@uiw/react-json-view";
 import * as f from "fabric";
-import {
-  Circle,
-  RectangleHorizontal,
-  Star,
-  Triangle,
-  Type,
-} from "lucide-react";
+import { Circle, RectangleHorizontal, Triangle, Type } from "lucide-react";
 import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
@@ -148,14 +141,14 @@ type EditorControlsProps = {
 const Debugger = ({ canvas }: { canvas: f.Canvas }) => {
   const json = useCanvasState({
     canvas,
-    handler: (canvas) => canvas.toJSON() as Record<any, any>,
+    handler: (canvas) => canvas.toJSON() as Record<string, unknown>,
   });
   console.log(json);
   return <JsonView value={json ?? {}} style={{ padding: ".5rem" }} />;
 };
 
-const Downloader = ({ canvas }: { canvas: f.Canvas }) => {
-  return "";
+const Downloader = ({}: { canvas: f.Canvas }) => {
+  return <></>;
 };
 
 const WhenExpanded = ({ children }: { children: React.ReactNode }) => {
@@ -223,7 +216,7 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
       });
       // TODO: handle loading error
     },
-    [canvas]
+    [canvas, data]
   );
 
   return (
