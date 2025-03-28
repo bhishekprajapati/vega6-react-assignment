@@ -6,9 +6,16 @@ import {
   Box,
   Button,
   Card,
+  createListCollection,
+  Field,
   Flex,
   Grid,
   GridItem,
+  HStack,
+  Image,
+  Portal,
+  Select,
+  Stack,
   useAccordionItemContext,
 } from "@chakra-ui/react";
 import JsonView from "@uiw/react-json-view";
@@ -20,6 +27,9 @@ import { nanoid } from "nanoid";
 import { useEffect, useRef, useState } from "react";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
 import { ColorModeButton, useColorMode } from "./ui/color-mode";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, useForm } from "react-hook-form";
 
 declare module "fabric" {
   interface FabricObject {
@@ -146,7 +156,7 @@ const AccordionItem = (props: AccordionItemProps) => {
         <Accordion.ItemIndicator />
       </Accordion.ItemTrigger>
       <Accordion.ItemContent>
-        <Accordion.ItemBody>{children}</Accordion.ItemBody>
+        <Accordion.ItemBody p={4}>{children}</Accordion.ItemBody>
       </Accordion.ItemContent>
     </Accordion.Item>
   );
@@ -174,8 +184,108 @@ const Debugger = ({ canvas }: { canvas: f.Canvas }) => {
   );
 };
 
-const Downloader = ({}: { canvas: f.Canvas }) => {
-  return <></>;
+const Downloader = ({ canvas }: { canvas: f.Canvas }) => {
+  const url = useCanvasState({
+    canvas,
+    delay: 250,
+    handler: (canvas) => canvas.toDataURL(),
+  });
+
+  const formats = createListCollection({
+    items: [
+      { label: ".png", value: "png" },
+      { label: ".jpeg", value: "jpeg" },
+      { label: ".webp", value: "webp" },
+    ],
+  });
+
+  const schema = z.object({
+    format: z.enum(["png", "jpeg", "webp"]).array(),
+  });
+
+  const {
+    handleSubmit,
+    formState: { errors, isValid },
+    control,
+  } = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      format: ["png"],
+    },
+  });
+
+  const onSubmit = handleSubmit(({ format }) => {
+    const [f] = format;
+    const href = canvas.toDataURL({
+      format: f,
+      multiplier: 1,
+    });
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = `exported`;
+    link.click();
+  });
+
+  return (
+    <Box>
+      <Card.Root>
+        <Card.Header>
+          <Card.Title>Preview</Card.Title>
+        </Card.Header>
+        <Card.Body>
+          <Image src={url} />
+        </Card.Body>
+        <Card.Footer>
+          <form onSubmit={onSubmit}>
+            <HStack alignItems="end">
+              <Field.Root invalid={!!errors.format} width="320px">
+                <Field.Label>Format</Field.Label>
+                <Controller
+                  control={control}
+                  name="format"
+                  render={({ field }) => (
+                    <Select.Root
+                      name={field.name}
+                      value={field.value}
+                      onValueChange={({ value }) => field.onChange(value)}
+                      onInteractOutside={() => field.onBlur()}
+                      collection={formats}
+                    >
+                      <Select.HiddenSelect />
+                      <Select.Control>
+                        <Select.Trigger>
+                          <Select.ValueText placeholder="Select image format" />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup>
+                          <Select.Indicator />
+                        </Select.IndicatorGroup>
+                      </Select.Control>
+                      <Portal>
+                        <Select.Positioner>
+                          <Select.Content>
+                            {formats.items.map((format) => (
+                              <Select.Item item={format} key={format.value}>
+                                {format.label}
+                                <Select.ItemIndicator />
+                              </Select.Item>
+                            ))}
+                          </Select.Content>
+                        </Select.Positioner>
+                      </Portal>
+                    </Select.Root>
+                  )}
+                />
+                <Field.ErrorText>{errors.format?.message}</Field.ErrorText>
+              </Field.Root>
+              <Button size="sm" type="submit" disabled={!isValid}>
+                Download
+              </Button>
+            </HStack>
+          </form>
+        </Card.Footer>
+      </Card.Root>
+    </Box>
+  );
 };
 
 const WhenExpanded = ({ children }: { children: React.ReactNode }) => {
@@ -238,11 +348,13 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
   useEffect(
     function loadImage() {
       if (!canvas) return;
-      f.FabricImage.fromURL(data.urls.small).then((img) => {
-        canvas.add(img);
-        canvas.renderAll();
-        setImage(img);
-      });
+      f.FabricImage.fromURL(data.urls.small, { crossOrigin: "anonymous" }).then(
+        (img) => {
+          canvas.add(img);
+          canvas.renderAll();
+          setImage(img);
+        }
+      );
       // TODO: handle loading error
     },
     [canvas, data]
