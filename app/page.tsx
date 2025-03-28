@@ -9,6 +9,7 @@ export default function Home() {
         Built by Abhishek Prajapati
         <Button
           as={"a"}
+          //  eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-expect-error
           href="https://github.com/bhishekprajapati"
           rounded="full"
