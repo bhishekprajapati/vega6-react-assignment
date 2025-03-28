@@ -160,6 +160,7 @@ const Debugger = ({ canvas }: { canvas: f.Canvas }) => {
   const mode = useColorMode();
   const json = useCanvasState({
     canvas,
+    delay: 250,
     handler: (canvas) => canvas.toJSON() as Record<string, unknown>,
   });
 
