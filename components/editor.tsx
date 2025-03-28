@@ -260,7 +260,7 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
             <canvas ref={canvasRef} />
           </Box>
         </GridItem>
-        <GridItem h="full">
+        <GridItem h="full" overflowY="auto">
           <Card.Root h="full">
             {canvas && <EditorControls canvas={canvas} />}
           </Card.Root>
