@@ -15,7 +15,6 @@ import {
   Image,
   Portal,
   Select,
-  Stack,
   useAccordionItemContext,
 } from "@chakra-ui/react";
 import JsonView from "@uiw/react-json-view";
@@ -233,7 +232,7 @@ const Downloader = ({ canvas }: { canvas: f.Canvas }) => {
           <Card.Title>Preview</Card.Title>
         </Card.Header>
         <Card.Body>
-          <Image src={url} />
+          <Image src={url} alt="preview" />
         </Card.Body>
         <Card.Footer>
           <form onSubmit={onSubmit}>
