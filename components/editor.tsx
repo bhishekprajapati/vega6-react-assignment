@@ -354,7 +354,6 @@ const Editor: React.FC<EditorProps> = ({ data }) => {
           setImage(img);
         }
       );
-      // TODO: handle loading error
     },
     [canvas, data]
   );
